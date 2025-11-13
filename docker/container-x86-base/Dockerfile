@@ -26,6 +26,18 @@ ARG USER_UID=1000
 ENV DEBIAN_FRONTEND=noninteractive
 
 # IMAGE SETUP START #
+# anritsu_driver START #
+# Install DSA driver
+WORKDIR /tmp
+RUN wget --user=dotx --password michaelscarn -O libssl1.deb http://160.80.97.139:8087/DTX/RESTART/Anritsu/libssl1.1.1_amd64.deb && \
+  wget --user=dotx --password michaelscarn -O anritsu_driver.deb http://160.80.97.139:8087/DTX/RESTART/Anritsu/AnritsuMS276XASoftware_T2021.12.1_x86-64_docker.deb && \
+  dpkg -i libssl1.deb && \
+  dpkg -i anritsu_driver.deb && \
+  chmod a+x /usr/local/AnritsuMS276XASoftware/application/backendloader/MS276XASoftwareBackEndStart.sh && \
+  rm libssl1.deb anritsu_driver.deb
+  # chgrp -R internal /usr/local/AnritsuMS276XASoftware && \
+  # chmod -R g+rw /usr/local/AnritsuMS276XASoftware
+# anritsu_driver END #
 # IMAGE SETUP END #
 
 # Create a user with Zsh as shell, hashed password, and add it to the sudoers
