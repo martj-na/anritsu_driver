@@ -37,6 +37,7 @@ RUN wget --user=dotx --password michaelscarn -O libssl1.deb http://160.80.97.139
   rm libssl1.deb anritsu_driver.deb
   # chgrp -R internal /usr/local/AnritsuMS276XASoftware && \
   # chmod -R g+rw /usr/local/AnritsuMS276XASoftware
+WORKDIR /root
 # anritsu_driver END #
 # IMAGE SETUP END #
 
