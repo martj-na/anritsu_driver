@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>anritsu_driver</name>
+  <version>0.1.0</version>
+  <description>ROS 2 driver for Anritsu MS2760A</description>
+
+ <maintainer email="martj.na@outlook.com">Martina Callea</maintainer>
+  <license>GPL-3.0-only</license>
+
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>builtin_interfaces</depend>
+  <depend>dua_app_management</depend>
+  <depend>dua_hardware_interfaces</depend>
+  <depend>dua_node_cpp</depend>
+  <depend>dua_qos_cpp</depend>
+ 
+
+ 
+  <depend>params_manager_cpp</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

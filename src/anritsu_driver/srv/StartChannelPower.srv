@@ -1,0 +1,10 @@
+# Request
+float64 center_freq_hz
+int span_hz
+int rbw_hz
+int vbw_hz
+
+---
+# Response
+bool success
+string message

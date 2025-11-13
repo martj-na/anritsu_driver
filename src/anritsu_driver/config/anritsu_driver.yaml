@@ -1,0 +1,57 @@
+/anritsu_driver:
+  ros__parameters:
+  
+    auto_configure: true
+    checksum_control: true
+    autostart:  true
+
+    configure:
+      mode: "channel_power"
+      scpi:
+        ip: "127.0.0.1"
+        port: 9001
+      analyzer:
+        center_freq: 2.422e9
+        span: 20.0e6 # 0 if zero span mode
+        rbw: 100e3
+        vbw: 300e3
+        if_gain: true
+        averages: 100
+        reflevel: -30
+        
+        traces: 
+          trace1:
+            enabled: true
+            type: "AVER"
+            detector: "RMS"
+          trace2:
+            enabled: false
+            type: "AVER"
+            detector: "POS"
+          trace3:
+            enabled: false
+            type: "MIN"
+            detector: "POS"
+          trace4:
+            enabled: false
+            type: "MAX"
+            detector: "POS"
+          trace5:
+            enabled: false
+            type: "RMAX"
+            detector: "POS"
+          trace6:
+            enabled: false
+            type: "RMIN"
+            detector: "POS"
+          
+
+
+        zerospan:
+          sweep_time: 10.0e-3
+          trigger: #TODO: complete trigger menu
+            source: "EXT" 
+        
+        channelpower:
+          integration_bw: 20.0e6
+

@@ -1,0 +1,51 @@
+#pragma once
+
+#include <string>
+#include <format>
+
+namespace anritsu_driver {
+namespace scpi {
+
+// Central Frequency
+inline constexpr char SET_CENTER_FREQ[] = ":FREQ:CENT {}Hz";
+
+// Span 
+inline constexpr char SET_SPAN[] = ":FREQ:SPAN {}Hz";
+
+// Resolution Bandwidth 
+inline constexpr char SET_RBW[] = ":BAND {}Hz";
+
+// Video Bandwidth 
+inline constexpr char SET_VBW[] = ":BAND:VID {}Hz";
+
+// Sweep time 
+inline constexpr char SET_SWEEP_TIME[] = ":SWE:TIME {}s";
+
+// Trigger source: IMM, VIDEO, EXT
+inline constexpr char SET_TRIGGER_SRC[] = "TRIG:SOUR {}";
+
+
+// Traces management
+inline constexpr char DISP_TRACE[] = ":TRACe{}:DISP {}"; // trace number, 1/0
+inline constexpr char UPD_TRACE[] = ":TRACe{}:UPD {}"; // trace number, 1/0
+inline constexpr char SET_TRACE_TYPE[] = ":TRAC{}:TYPE {}"; // trace number, NORM/AVER/MAX/MIN
+inline constexpr char SET_AVERAGE_COUNT[] = ":SENS:AVER:COUN {}"; // number of averages
+inline constexpr char SET_TRACE_FORMAT[] = ":FORM:TRAC:DATA {}" // ASC/INT/REAL
+inline constexpr char SET_TRACE_STAT[] = ":DISP:WIND:TRAC1:STAT {}" // ON/OFF
+
+// Acquisition control
+inline constexpr char INIT[] = ":INIT:CONT {}"; // ON/OFF
+inline constexpr char WAIT_PREV_OP[] = "*OPC?";
+
+// Measurements
+inline constexpr char GET_CHANNEL_POWER[] = ":READ:CHP?"; 
+inline constexpr char GET_TRACE_DATA[] = ":TRAC:DATA?{}"; // trace number
+
+
+
+
+} // namespace scpi
+} // namespace anritsu_driver
+
+
+//TODO sto file si deve togliere appena capisco come sistemare i comandi

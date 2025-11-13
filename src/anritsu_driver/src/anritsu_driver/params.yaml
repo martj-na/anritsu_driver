@@ -1,0 +1,329 @@
+header_include_path: "anritsu_driver/anritsu_driver.hpp"
+namespace: anritsu_driver
+node_class_name: AnritsuDriver
+
+# TODO: inserire i veri range dei parametri
+
+params:
+  # =====================================================================
+  # Connection
+  # =====================================================================
+  auto_configure:
+    type: bool
+    default_value: true
+    description: "Automatically configure device at startup."
+    constraints: "It is a boolean value."
+    read_only: false
+    var_name: auto_configure_
+
+  autostart:
+    type: bool
+    default_value: true
+    description: "Autostart measurement upon driver launch."
+    constraints: "It is a boolean value."
+    read_only: false
+    var_name: autostart_
+
+  configure.mode:
+    type: string
+    default_value: "channel_power"
+    description: "Measurement modes"
+    constraints: "Must be either <zero_span> or <channel_power>."
+    read_only: false
+    var_name: configure_mode_
+    # TODO: validator: validate_configure_analyzer_mode
+
+  configure.scpi.ip:
+    type: string
+    default_value: "127.0.0.1"
+    description: "IP address of the Anritsu MS2760A configure.analyzer."
+    constraints: "Must be a reachable IPv4 address."
+    read_only: false
+    var_name: configure_scpi_ip_
+
+  configure.scpi.port:
+    type: integer
+    default_value: 9001
+    min_value: 1
+    max_value: 65535
+    step: 1
+    description: "TCP port used by the Anritsu MS2760A configure.analyzer."
+    constraints: "Must be within valid TCP port range [1, 65535]."
+    read_only: false
+    var_name: configure_scpi_port_
+    
+
+  
+
+  # =====================================================================
+  # Frequency Control
+  # =====================================================================
+  configure.analyzer.center_freq:
+    type: double
+    default_value: 2.422e9
+    min_value: 100.0e6
+    max_value: 32.0e9
+    step: 0.0
+    description: "Center frequency of measurement (Hz)."
+    constraints: "Must be in the range [100 MHz, 32 GHz]."
+    read_only: false
+    var_name: configure_analyzer_center_freq_
+
+  configure.analyzer.span:
+    type: double
+    default_value: 20.0e6
+    min_value: 0.0
+    max_value: 32.0e9
+    step: 0.0
+    description: "Frequency span (Hz)."
+    constraints: "Must be between 0 and 32 GHz."
+    read_only: false
+    var_name: configure_analyzer_span_
+
+  # =====================================================================
+  # Bandwidth Control
+  # =====================================================================
+  configure.analyzer.rbw:
+    type: double
+    default_value: 100e3
+    min_value: 1.0
+    max_value: 10.0e6
+    step: 0.0
+    description: "Resolution bandwidth (Hz)."
+    constraints: "Must be in the range [1 Hz, 10 MHz]."
+    read_only: false
+    var_name: configure_analyzer_rbw_
+
+  configure.analyzer.vbw:
+    type: double
+    default_value: 300e3
+    min_value: 1.0
+    max_value: 10.0e6
+    step: 0.0
+    description: "Video bandwidth (Hz)."
+    constraints: "Must be in the range [1 Hz, 10 MHz]."
+    read_only: false
+    var_name: configure_analyzer_vbw_
+
+
+
+  # =====================================================================
+  # ZeroSpan Control
+  # =====================================================================
+  configure.analyzer.zerospan.sweep_time:
+    type: double
+    default_value: 1.0e-3
+    min_value: 1.0e-3
+    max_value: 10.0
+    step: 0.0
+    description: "Sweep time (seconds)."
+    constraints: "Must be in the range [1 ms, 10 s]."
+    read_only: false
+    var_name: configure_analyzer_zerospan_sweep_time_
+
+  configure.analyzer.zerospan.trigger.source:
+    type: string
+    default_value: "IMM"
+    description: "Trigger source for measurement."
+    constraints: "Allowed values: IMM, EXT, VID."
+    read_only: false
+    var_name: configure_analyzer_zerospan_trigger_source_
+
+  # # =====================================================================
+  # # Channel Power Control
+  # # =====================================================================
+  configure.analyzer.channelpower.integration_bw:
+    type: double
+    default_value: 20.0e6
+    min_value: 1.0e3
+    max_value: 10.0e9
+    step: 0.0
+    description: "Integration bandwidth for channel power measurement (Hz)."
+    constraints: "Must be in the range [1 kHz, 10 GHz]." # TODO: verify range
+    read_only: false
+    var_name: configure_analyzer_channelpower_integration_bw_
+
+  # =====================================================================
+  # Averaging / Gain
+  # =====================================================================
+
+
+  configure.analyzer.reflevel:
+    type: integer
+    default_value: -30
+    min_value: -150
+    max_value: 30
+    step: 1
+    description: "Reference level in dBm."
+    constraints: "Must be in the range [-150, 30]."
+    read_only: false
+    var_name: configure_analyzer_reflevel_
+
+  configure.analyzer.averages:
+    type: integer
+    default_value: 100
+    min_value: 1
+    max_value: 1000
+    step: 1
+    description: "Number of trace sweeps (N) to average. 1 equals no averaging."
+    constraints: "Must be in the range [1, 1000]."
+    read_only: false
+    var_name: configure_analyzer_averages_
+
+
+  configure.analyzer.if_gain:
+    type: bool
+    default_value: true
+    description: "Enable intermediate frequency (IF) gain control."
+    constraints: "It is a boolean value."
+    read_only: false
+    var_name: configure_analyzer_if_gain_
+
+  # =====================================================================
+  # Trace Control
+  # =====================================================================
+
+
+  configure.analyzer.traces.trace1.enabled:
+    type: bool
+    default_value: true
+    description: "Trace enabled or disabled"
+    constraints: "It is a boolean value."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_enabled_
+
+  configure.analyzer.traces.trace1.type: 
+    type: string
+    default_value: "NORM"
+    description: "Trace type."
+    constraints: "Allowed values: NORM, MAX, MIN, AVER, RMAX, RMIN."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_type_
+
+  configure.analyzer.traces.trace1.detector:
+    type: string
+    default_value: "POS"
+    description: "Trace detector type."
+    constraints: "Allowed values: POS, RMS, NEG, SAMP"
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_detector_
+
+  configure.analyzer.traces.trace2.enabled:
+    type: bool
+    default_value: true
+    description: "Trace enabled or disabled"
+    constraints: "It is a boolean value."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_enabled_
+
+  configure.analyzer.traces.trace2.type: 
+    type: string
+    default_value: "NORM"
+    description: "Trace type."
+    constraints: "Allowed values: NORM, MAX, MIN, AVER, RMAX, RMIN."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_type_
+
+  configure.analyzer.traces.trace2.detector:
+    type: string
+    default_value: "POS"
+    description: "Trace detector type."
+    constraints: "Allowed values: POS, RMS, NEG, SAMP"
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_detector_
+  
+  configure.analyzer.traces.trace3.enabled:
+    type: bool
+    default_value: true
+    description: "Trace enabled or disabled"
+    constraints: "It is a boolean value."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_enabled_
+
+  configure.analyzer.traces.trace3.type: 
+    type: string
+    default_value: "NORM"
+    description: "Trace type."
+    constraints: "Allowed values: NORM, MAX, MIN, AVER, RMAX, RMIN."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_type_
+
+  configure.analyzer.traces.trace3.detector:
+    type: string
+    default_value: "POS"
+    description: "Trace detector type."
+    constraints: "Allowed values: POS, RMS, NEG, SAMP"
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_detector_
+ 
+  configure.analyzer.traces.trace4.enabled:
+    type: bool
+    default_value: true
+    description: "Trace enabled or disabled"
+    constraints: "It is a boolean value."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_enabled_
+
+  configure.analyzer.traces.trace4.type: 
+    type: string
+    default_value: "NORM"
+    description: "Trace type."
+    constraints: "Allowed values: NORM, MAX, MIN, AVER, RMAX, RMIN."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_type_
+
+  configure.analyzer.traces.trace4.detector:
+    type: string
+    default_value: "POS"
+    description: "Trace detector type."
+    constraints: "Allowed values: POS, RMS, NEG, SAMP"
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_detector_
+
+  configure.analyzer.traces.trace5.enabled:
+    type: bool
+    default_value: true
+    description: "Trace enabled or disabled"
+    constraints: "It is a boolean value."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_enabled_
+
+  configure.analyzer.traces.trace5.type: 
+    type: string
+    default_value: "NORM"
+    description: "Trace type."
+    constraints: "Allowed values: NORM, MAX, MIN, AVER, RMAX, RMIN."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_type_
+
+  configure.analyzer.traces.trace5.detector:
+    type: string
+    default_value: "POS"
+    description: "Trace detector type."
+    constraints: "Allowed values: POS, RMS, NEG, SAMP"
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_detector_
+   
+  configure.analyzer.traces.trace6.enabled:
+    type: bool
+    default_value: true
+    description: "Trace enabled or disabled"
+    constraints: "It is a boolean value."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_enabled_
+
+  configure.analyzer.traces.trace6.type: 
+    type: string
+    default_value: "NORM"
+    description: "Trace type."
+    constraints: "Allowed values: NORM, MAX, MIN, AVER, RMAX, RMIN."
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_type_
+
+  configure.analyzer.traces.trace6.detector:
+    type: string
+    default_value: "POS"
+    description: "Trace detector type."
+    constraints: "Allowed values: POS, RMS, NEG, SAMP"
+    read_only: false
+    #var_name: configure_analyzer_traces_trace1_detector_
