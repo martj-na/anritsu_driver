@@ -1,8 +1,6 @@
-# dua-template
+# anritsu_driver
 
-GitHub template repositories for projects based on the Distributed Unified Architecture.
-
-See [`dua-template.md`](dua-template.md) for more information.
+Anritsu Driver
 
 ---
 
