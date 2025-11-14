@@ -216,7 +216,7 @@ private:
   * @param psd            Measured power spectral density in dBm/Hz.
   */
   void publish(double channel_power, double psd);
-  void publish(int trace_id, const std::vector<double> &values);
+  void publish(const std::vector<std::vector<double>> &all_traces);
 
 
 
@@ -228,31 +228,26 @@ private:
 rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr chpow_pub_;    
 
 // Trace Publishers
-rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr trace1_pub_;
-rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr trace2_pub_;
-rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr trace3_pub_;
-rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr trace4_pub_;
-rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr trace5_pub_;
-rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr trace6_pub_;
+rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr traces_pub_;
+
+
+
 
 // =====================================================================
 // Publishers Topics
 // =====================================================================
 static const std::string chpow_pub_topic_;    // Channel Power topic
+static const std::string traces_pub_topic_;
 
-static const std::string trace1_pub_topic_;
-static const std::string trace2_pub_topic_;
-static const std::string trace3_pub_topic_;
-static const std::string trace4_pub_topic_;
-static const std::string trace5_pub_topic_;
-static const std::string trace6_pub_topic_;
+
+
 
 // =====================================================================
 //  Utilities
 // =====================================================================
 std::vector<double> parse_csv_to_vector(const std::string &csv);
 std::string strip_scpi_header(const std::string &input);
-std::map<int, std::vector<double>> parse_trace_all_payload(const std::string &payload);
+// std::map<int, std::vector<double>> parse_trace_all_payload(const std::string &payload);
 
 };
 

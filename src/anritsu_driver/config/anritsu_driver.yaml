@@ -6,7 +6,7 @@
     autostart:  true
 
     configure:
-      mode: "channel_power"
+      mode: "zero_span"
       scpi:
         ip: "127.0.0.1"
         port: 9001
@@ -25,23 +25,23 @@
             type: "AVER"
             detector: "RMS"
           trace2:
-            enabled: false
+            enabled: true
             type: "AVER"
             detector: "POS"
           trace3:
-            enabled: false
+            enabled: true
             type: "MIN"
             detector: "POS"
           trace4:
-            enabled: false
+            enabled: true
             type: "MAX"
             detector: "POS"
           trace5:
-            enabled: false
+            enabled: true
             type: "RMAX"
             detector: "POS"
           trace6:
-            enabled: false
+            enabled: true
             type: "RMIN"
             detector: "POS"
           
