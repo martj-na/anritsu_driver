@@ -47,50 +47,53 @@ void AnritsuDriver::channel_power_routine()
 }
 
 
-
-
 void AnritsuDriver::zero_span_routine()
-// questa va bene a patto che la frequenza di campionamento in questa funzione è pari alla frequenza del trigger 
-// legge le tracce singolarmente, il che significa che se il trigger è troppo veloce e lo strumento aggiorna le tracce troppo velocemente, potrebbe succedere che le tracce raccolte da questo software non siano ben sincronizzate e appartengono a sweep successivi 
-// per risolvere sto problema si deve implementare un parser dito al culo di TRACE:DATA:ALL che legge tutte le tracce in un colpo solo
 {
   RCLCPP_INFO(this->get_logger(), "Executing ZERO SPAN routine...");
   
+  const size_t num_traces = 6;
+  const size_t points_per_trace = 501;
+
+  // Pre-allocazione container finale
+  std::vector<std::vector<double>> all_traces(num_traces);
+
   while (scpi_running_.load(std::memory_order_acquire))
   {
-    try {
-      for (size_t i = 0; i < traces_.size(); ++i)
+    try 
+    {
+      for (size_t i = 0; i < num_traces; ++i)
       {
         const auto &trace = traces_[i];
+
         if (!trace.enabled) {
-          RCLCPP_DEBUG(this->get_logger(),
-                       "Trace %zu disabled, skipping query for data", i + 1);
+          // Traccia disabilitata → padding a zero
+          all_traces[i] = std::vector<double>(points_per_trace, 0.0);
           continue;
         }
-        
-      
-        // ============================================
-        // 1️⃣ Trace Acquisition
-        // ============================================
+
+        // 1️⃣ SCPI query
         scpi_query("*OPC?");
         std::string cmd = ":TRAC:DATA?" + std::to_string(i + 1);
         std::string resp = scpi_query(cmd);
-        RCLCPP_DEBUG(this->get_logger(),
-                     "Trace %zu: %zu bytes received", i + 1, resp.size());
 
-        // ============================================
-        // 2️⃣ Parsing Data
-        // ============================================
+        // 2️⃣ Parsing SCPI CSV
         std::string payload = strip_scpi_header(resp);
         std::vector<double> values = parse_csv_to_vector(payload);
 
-        // ============================================
-        // 3️⃣ Publish Data
-        // ============================================
-        publish(static_cast<int>(i + 1), values);
+        // 3️⃣ Se la traccia non ha 501 punti → padding a zero
+        if (values.size() != points_per_trace) {
+          RCLCPP_WARN(this->get_logger(),
+                      "Trace %zu wrong size (%zu), padding to %zu",
+                      i+1, values.size(), points_per_trace);
 
-        
+          values.resize(points_per_trace, 0.0);
+        }
+
+        all_traces[i] = std::move(values);
       }
+
+      // 4️⃣ A questo punto abbiamo sempre 6×501 valori → pubblichiamo
+      publish(all_traces);
 
       std::this_thread::sleep_for(std::chrono::seconds(1));  // 1 Hz
     }
@@ -102,6 +105,8 @@ void AnritsuDriver::zero_span_routine()
 
   RCLCPP_INFO(this->get_logger(), "🟢 ZERO SPAN routine stopped.");
 }
+
+
 
 
 

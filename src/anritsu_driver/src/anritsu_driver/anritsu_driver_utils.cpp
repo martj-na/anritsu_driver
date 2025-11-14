@@ -62,76 +62,76 @@ std::vector<double> AnritsuDriver::parse_csv_to_vector(const std::string &csv)
 }
 
 
-std::map<int, std::vector<double>>
-AnritsuDriver::parse_trace_all_payload(const std::string &payload)
-{
-  std::map<int, std::vector<double>> traces;
+// std::map<int, std::vector<double>>
+// AnritsuDriver::parse_trace_all_payload(const std::string &payload)
+// {
+//   std::map<int, std::vector<double>> traces;
 
-  if (payload.size() < 4)
-    throw std::runtime_error("TRACE:DATA:ALL payload too short");
+//   if (payload.size() < 4)
+//     throw std::runtime_error("TRACE:DATA:ALL payload too short");
 
-  const char* data = payload.data();
+//   const char* data = payload.data();
 
-  // Header: [num_points][flags]
-  uint16_t num_points = 0;
-  uint16_t flags = 0;
-  std::memcpy(&num_points, data, sizeof(uint16_t));
-  std::memcpy(&flags, data + 2, sizeof(uint16_t));
+//   // Header: [num_points][flags]
+//   uint16_t num_points = 0;
+//   uint16_t flags = 0;
+//   std::memcpy(&num_points, data, sizeof(uint16_t));
+//   std::memcpy(&flags, data + 2, sizeof(uint16_t));
 
-#if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
-  num_points = (num_points >> 8) | (num_points << 8);
-  flags = (flags >> 8) | (flags << 8);
-#endif
+// #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
+//   num_points = (num_points >> 8) | (num_points << 8);
+//   flags = (flags >> 8) | (flags << 8);
+// #endif
 
-  if (num_points == 0) {
-    RCLCPP_WARN(rclcpp::get_logger("anritsu_driver"),
-                "TRACE:DATA:ALL reports zero points, skipping parse");
-    return traces;
-  }
+//   if (num_points == 0) {
+//     RCLCPP_WARN(rclcpp::get_logger("anritsu_driver"),
+//                 "TRACE:DATA:ALL reports zero points, skipping parse");
+//     return traces;
+//   }
 
-  const size_t bytes_per_trace = num_points * sizeof(double);
-  const char* ptr = data + 4;
-  size_t remaining = payload.size() - 4;
+//   const size_t bytes_per_trace = num_points * sizeof(double);
+//   const char* ptr = data + 4;
+//   size_t remaining = payload.size() - 4;
 
-  int trace_id = 1;
-  for (int bit = 0; bit < 16; ++bit)
-  {
-    if (!(flags & (1 << bit)))
-      continue;  // trace disabilitata
+//   int trace_id = 1;
+//   for (int bit = 0; bit < 16; ++bit)
+//   {
+//     if (!(flags & (1 << bit)))
+//       continue;  // trace disabilitata
 
-    if (remaining < bytes_per_trace) {
-      RCLCPP_WARN(rclcpp::get_logger("anritsu_driver"),
-                  "TRACE:DATA:ALL payload truncated while parsing trace %d", trace_id);
-      break;
-    }
+//     if (remaining < bytes_per_trace) {
+//       RCLCPP_WARN(rclcpp::get_logger("anritsu_driver"),
+//                   "TRACE:DATA:ALL payload truncated while parsing trace %d", trace_id);
+//       break;
+//     }
 
-    std::vector<double> values(num_points);
-    std::memcpy(values.data(), ptr, bytes_per_trace);
+//     std::vector<double> values(num_points);
+//     std::memcpy(values.data(), ptr, bytes_per_trace);
 
-#if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
-    for (auto &v : values) {
-      uint64_t u;
-      std::memcpy(&u, &v, sizeof(u));
-      u = ((u & 0x00000000000000FFULL) << 56) |
-          ((u & 0x000000000000FF00ULL) << 40) |
-          ((u & 0x0000000000FF0000ULL) << 24) |
-          ((u & 0x00000000FF000000ULL) << 8 ) |
-          ((u & 0x000000FF00000000ULL) >> 8 ) |
-          ((u & 0x0000FF0000000000ULL) >> 24) |
-          ((u & 0x00FF000000000000ULL) >> 40) |
-          ((u & 0xFF00000000000000ULL) >> 56);
-      std::memcpy(&v, &u, sizeof(u));
-    }
-#endif
+// #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
+//     for (auto &v : values) {
+//       uint64_t u;
+//       std::memcpy(&u, &v, sizeof(u));
+//       u = ((u & 0x00000000000000FFULL) << 56) |
+//           ((u & 0x000000000000FF00ULL) << 40) |
+//           ((u & 0x0000000000FF0000ULL) << 24) |
+//           ((u & 0x00000000FF000000ULL) << 8 ) |
+//           ((u & 0x000000FF00000000ULL) >> 8 ) |
+//           ((u & 0x0000FF0000000000ULL) >> 24) |
+//           ((u & 0x00FF000000000000ULL) >> 40) |
+//           ((u & 0xFF00000000000000ULL) >> 56);
+//       std::memcpy(&v, &u, sizeof(u));
+//     }
+// #endif
 
-    traces[trace_id] = std::move(values);
-    ptr += bytes_per_trace;
-    remaining -= bytes_per_trace;
-    trace_id++;
-  }
+//     traces[trace_id] = std::move(values);
+//     ptr += bytes_per_trace;
+//     remaining -= bytes_per_trace;
+//     trace_id++;
+//   }
 
-  return traces;
-}
+//   return traces;
+// }
 
 } // namespace anritsu_driver
 

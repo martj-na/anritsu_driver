@@ -218,45 +218,136 @@ bool AnritsuDriver::scpi_send(const std::string &cmd, double wait_s)
   return true;
 }
 
-std::string AnritsuDriver::scpi_query(const std::string &cmd, double wait_s)
-{
-  std::lock_guard<std::mutex> lock(socket_mutex_);
+// std::string AnritsuDriver::scpi_query(const std::string &cmd, double wait_s)
+// {
+//   std::lock_guard<std::mutex> lock(socket_mutex_);
 
-  if (sock_fd_ < 0) {
-    throw std::runtime_error("❌ Cannot query SCPI: socket not connected");
+//   if (sock_fd_ < 0) {
+//     throw std::runtime_error("❌ Cannot query SCPI: socket not connected");
+//   }
+
+//   // Invia comando con newline
+//   std::string full_cmd = cmd + "\n";
+//   ssize_t sent = send(sock_fd_, full_cmd.c_str(), full_cmd.size(), 0);
+//   if (sent < 0) {
+//     throw std::runtime_error("❌ SCPI send() failed: " + std::string(strerror(errno)));
+//   }
+
+//   if (wait_s > 0)
+//     std::this_thread::sleep_for(std::chrono::duration<double>(wait_s));
+
+//   // Leggi la risposta
+//   char buffer[4096];
+//   ssize_t received = recv(sock_fd_, buffer, sizeof(buffer) - 1, 0);
+//   if (received < 0) {
+//     throw std::runtime_error("❌ SCPI recv() failed: " + std::string(strerror(errno)));
+//   }
+//   if (received == 0) {
+//     throw std::runtime_error("⚠️ SCPI recv(): connection closed by peer");
+//   }
+
+//   buffer[received] = '\0';
+//   std::string resp(buffer);
+
+//   // Rimuovi CR/LF
+//   while (!resp.empty() && (resp.back() == '\n' || resp.back() == '\r')) {
+//     resp.pop_back();
+//   }
+
+//   RCLCPP_DEBUG(this->get_logger(), "⬅️ SCPI response to '%s': %s", cmd.c_str(), resp.c_str());
+//   return resp;
+// }
+  std::string AnritsuDriver::scpi_query(const std::string &cmd, double wait_s)
+  {
+    std::lock_guard<std::mutex> lock(socket_mutex_);
+
+    if (sock_fd_ < 0) {
+      throw std::runtime_error("Cannot query SCPI: socket not connected");
+    }
+
+    // Send command with newline
+    const std::string full_cmd = cmd + "\n";
+    ssize_t sent = send(sock_fd_, full_cmd.c_str(), full_cmd.size(), 0);
+    if (sent < 0) {
+      throw std::runtime_error("SCPI send() failed: " + std::string(strerror(errno)));
+    }
+
+    if (wait_s > 0.0) {
+      std::this_thread::sleep_for(std::chrono::duration<double>(wait_s));
+    }
+
+    std::string resp;
+    resp.reserve(8192);
+    char buf[4096];
+
+    auto append_chunk = [&](ssize_t n) {
+      if (n <= 0) {
+        if (n == 0) throw std::runtime_error("SCPI recv(): connection closed by peer");
+        throw std::runtime_error("SCPI recv() failed: " + std::string(strerror(errno)));
+      }
+      resp.append(buf, static_cast<size_t>(n));
+    };
+
+    // Read first chunk to determine response type
+    ssize_t n = recv(sock_fd_, buf, sizeof(buf), 0);
+    append_chunk(n);
+
+    if (!resp.empty() && resp[0] == '#') {
+      // Definite-length block: "#<n><len><payload>"
+      // Make sure we have at least "#<n>".
+      while (resp.size() < 2) {
+        n = recv(sock_fd_, buf, sizeof(buf), 0);
+        append_chunk(n);
+      }
+
+      int len_digits = resp[1] - '0';
+      if (len_digits <= 0 || len_digits > 9) {
+        throw std::runtime_error("Malformed SCPI header: invalid length digit count");
+      }
+
+      const size_t header_len = 2u + static_cast<size_t>(len_digits);
+
+      // Ensure we have the full header to parse <len>
+      while (resp.size() < header_len) {
+        n = recv(sock_fd_, buf, sizeof(buf), 0);
+        append_chunk(n);
+      }
+
+      size_t payload_len = 0;
+      try {
+        payload_len = static_cast<size_t>(std::stoul(resp.substr(2, len_digits)));
+      } catch (...) {
+        throw std::runtime_error("Malformed SCPI header: invalid length value");
+      }
+
+      const size_t total_needed = header_len + payload_len; // ignore trailing CR/LF
+
+      // Read until we have at least header + payload
+      while (resp.size() < total_needed) {
+        n = recv(sock_fd_, buf, sizeof(buf), 0);
+        append_chunk(n);
+      }
+
+      // Optionally consume a trailing CR/LF if present (do not block if not there)
+      // Try one non-blocking peek for a newline; if your socket is blocking only, you can skip this.
+
+    } else {
+      // ASCII response: read until newline
+      while (resp.empty() || (resp.back() != '\n' && resp.back() != '\r')) {
+        n = recv(sock_fd_, buf, sizeof(buf), 0);
+        append_chunk(n);
+      }
+    }
+
+    // Strip trailing CR/LF
+    while (!resp.empty() && (resp.back() == '\n' || resp.back() == '\r')) {
+      resp.pop_back();
+    }
+
+    RCLCPP_DEBUG(this->get_logger(), "SCPI response to '%s': %s", cmd.c_str(), resp.c_str());
+    return resp;
   }
 
-  // Invia comando con newline
-  std::string full_cmd = cmd + "\n";
-  ssize_t sent = send(sock_fd_, full_cmd.c_str(), full_cmd.size(), 0);
-  if (sent < 0) {
-    throw std::runtime_error("❌ SCPI send() failed: " + std::string(strerror(errno)));
-  }
-
-  if (wait_s > 0)
-    std::this_thread::sleep_for(std::chrono::duration<double>(wait_s));
-
-  // Leggi la risposta
-  char buffer[4096];
-  ssize_t received = recv(sock_fd_, buffer, sizeof(buffer) - 1, 0);
-  if (received < 0) {
-    throw std::runtime_error("❌ SCPI recv() failed: " + std::string(strerror(errno)));
-  }
-  if (received == 0) {
-    throw std::runtime_error("⚠️ SCPI recv(): connection closed by peer");
-  }
-
-  buffer[received] = '\0';
-  std::string resp(buffer);
-
-  // Rimuovi CR/LF
-  while (!resp.empty() && (resp.back() == '\n' || resp.back() == '\r')) {
-    resp.pop_back();
-  }
-
-  RCLCPP_DEBUG(this->get_logger(), "⬅️ SCPI response to '%s': %s", cmd.c_str(), resp.c_str());
-  return resp;
-}
 
 }  // namespace anritsu_driver
 

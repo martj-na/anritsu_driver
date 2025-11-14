@@ -9,12 +9,8 @@ namespace anritsu_driver
 /* Publishers Topics. */
 const std::string AnritsuDriver::chpow_pub_topic_ = "~/channel_power";
 
-const std::string AnritsuDriver::trace1_pub_topic_ = "~/trace1";
-const std::string AnritsuDriver::trace2_pub_topic_ = "~/trace2";
-const std::string AnritsuDriver::trace3_pub_topic_ = "~/trace3";
-const std::string AnritsuDriver::trace4_pub_topic_ = "~/trace4";
-const std::string AnritsuDriver::trace5_pub_topic_ = "~/trace5";
-const std::string AnritsuDriver::trace6_pub_topic_ = "~/trace6";
+const std::string AnritsuDriver::traces_pub_topic_ = "~/traces";
+
 
 
 /* Service Servers Names. */

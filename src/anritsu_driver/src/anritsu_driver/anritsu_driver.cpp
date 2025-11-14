@@ -52,26 +52,10 @@ void AnritsuDriver::init_publishers()
     chpow_pub_topic_,
     dua_qos::Reliable::get_datum_qos());
 
-  trace1_pub_ = dua_create_publisher<std_msgs::msg::Float64MultiArray>(
-    trace1_pub_topic_,
-    dua_qos::Reliable::get_datum_qos());
-  trace2_pub_ = dua_create_publisher<std_msgs::msg::Float64MultiArray>(
-    trace2_pub_topic_,
-    dua_qos::Reliable::get_datum_qos());  
-  
-  trace3_pub_ = dua_create_publisher<std_msgs::msg::Float64MultiArray>(
-    trace3_pub_topic_,      
+  traces_pub_ = dua_create_publisher<std_msgs::msg::Float64MultiArray>(
+    traces_pub_topic_,
     dua_qos::Reliable::get_datum_qos());
   
-  trace4_pub_ = dua_create_publisher<std_msgs::msg::Float64MultiArray>(
-    trace4_pub_topic_,      
-    dua_qos::Reliable::get_datum_qos());
-  trace5_pub_ = dua_create_publisher<std_msgs::msg::Float64MultiArray>(
-    trace5_pub_topic_,
-    dua_qos::Reliable::get_datum_qos());
-  trace6_pub_ = dua_create_publisher<std_msgs::msg::Float64MultiArray>(
-    trace6_pub_topic_,
-    dua_qos::Reliable::get_datum_qos());
 
 }
 
